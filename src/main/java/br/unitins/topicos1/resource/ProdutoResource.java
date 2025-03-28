@@ -1,8 +1,8 @@
 package br.unitins.topicos1.resource;
 
 import br.unitins.topicos1.model.Produto;
+import br.unitins.topicos1.model.Categoria;
 import br.unitins.topicos1.service.ProdutoService;
-import br.unitins.topicos1.model.CategoriaProduto;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -46,7 +46,7 @@ public class ProdutoResource {
 
     @GET
     @Path("/categoria/{tipo}")
-    public List<Produto> getByCategoria(@PathParam("tipo") CategoriaProduto categoria) {
+    public List<Produto> getByCategoria(@PathParam("tipo") Categoria categoria) {
         return service.findByCategoria(categoria);
     }
 }

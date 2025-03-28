@@ -2,23 +2,23 @@ package br.unitins.topicos1.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Produto extends PanacheEntity {
+
     public String nome;
     public String descricao;
     public double preco;
     public int estoque;
 
-    @Enumerated(EnumType.STRING)
-    public CategoriaProduto categoria;
+    @ManyToOne
+    public Categoria categoria;
 
     public Produto() {
     }
 
-    public Produto(String nome, String descricao, double preco, int estoque, CategoriaProduto categoria) {
+    public Produto(String nome, String descricao, double preco, int estoque, Categoria categoria) {
         this.nome = nome;
         this.descricao = descricao;
         this.preco = preco;
@@ -26,6 +26,7 @@ public class Produto extends PanacheEntity {
         this.categoria = categoria;
     }
 
+    // Getters e Setters
     public String getNome() {
         return nome;
     }
@@ -58,13 +59,11 @@ public class Produto extends PanacheEntity {
         this.estoque = estoque;
     }
 
-    public CategoriaProduto getCategoria() {
+    public Categoria getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(CategoriaProduto categoria) {
+    public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }
 }
-
-

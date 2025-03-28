@@ -1,7 +1,7 @@
 package br.unitins.topicos1.service;
 
-import br.unitins.topicos1.model.CategoriaProduto;
 import br.unitins.topicos1.model.Produto;
+import br.unitins.topicos1.model.Categoria;
 import br.unitins.topicos1.repository.ProdutoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -45,7 +45,7 @@ public class ProdutoService {
         repository.deleteById(id);
     }
 
-    public List<Produto> findByCategoria(CategoriaProduto categoria) {
+    public List<Produto> findByCategoria(Categoria categoria) {
         return repository.list("categoria", categoria);
     }
 }
