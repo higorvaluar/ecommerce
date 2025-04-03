@@ -66,4 +66,6 @@ public class Produto extends PanacheEntity {
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }
+
+    public long getId() {return id;}
 }

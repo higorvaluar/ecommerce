@@ -1,11 +1,15 @@
 package br.unitins.topicos1.service;
 
+import br.unitins.topicos1.dto.ProdutoRequestDTO;
+import br.unitins.topicos1.dto.ProdutoResponseDTO;
 import br.unitins.topicos1.model.Produto;
 import br.unitins.topicos1.model.Categoria;
+import br.unitins.topicos1.repository.CategoriaRepository;
 import br.unitins.topicos1.repository.ProdutoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotFoundException;
 import java.util.List;
 
 @ApplicationScoped
@@ -13,31 +17,54 @@ public class ProdutoService {
     @Inject
     ProdutoRepository repository;
 
-    public Produto findById(long id) {
-        return repository.findById(id);
-    }
+    @Inject
+    CategoriaRepository categoriaRepository;
 
-    public List<Produto> findAll() {
-        return repository.listAll();
-    }
-
-    @Transactional
-    public Produto create(Produto produto) {
-        repository.persist(produto);
-        return produto;
-    }
-
-    @Transactional
-    public Produto update(Long id, Produto produtoAtualizado) {
+    public ProdutoResponseDTO findById(long id) {
         Produto produto = repository.findById(id);
-        if (produto != null) {
-            produto.nome = produtoAtualizado.nome;
-            produto.descricao = produtoAtualizado.descricao;
-            produto.preco = produtoAtualizado.preco;
-            produto.estoque = produtoAtualizado.estoque;
-            produto.categoria = produtoAtualizado.categoria;
+        if (produto == null) {
+            throw new NotFoundException("Produto não encontrado");
         }
-        return produto;
+        return toResponseDTO(produto);
+    }
+
+    @Transactional
+    public ProdutoResponseDTO create(ProdutoRequestDTO dto) {
+        Produto produto = new Produto();
+        produto.setNome(dto.nome());
+        produto.setDescricao(dto.descricao());
+        produto.setPreco(dto.preco());
+        produto.setEstoque(dto.estoque());
+
+        Categoria categoria = categoriaRepository.findById(dto.categoriaId());
+        produto.setCategoria(categoria);
+
+        repository.persist(produto);
+        return toResponseDTO(produto);
+    }
+
+    @Transactional
+    public ProdutoResponseDTO update(Long id, ProdutoRequestDTO dto) {
+        Produto produto = repository.findById(id);
+        if (produto == null) {  // ✅ Corrigido o erro
+            throw new NotFoundException("Produto não encontrado");
+        }
+
+        produto.setNome(dto.nome());
+        produto.setDescricao(dto.descricao());
+        produto.setPreco(dto.preco());
+        produto.setEstoque(dto.estoque());
+
+        Categoria categoria = categoriaRepository.findById(dto.categoriaId());
+        produto.setCategoria(categoria);
+
+        return toResponseDTO(produto);
+    }
+
+    public List<ProdutoResponseDTO> findAll() {
+        return repository.findAll().stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     @Transactional
@@ -45,7 +72,26 @@ public class ProdutoService {
         repository.deleteById(id);
     }
 
-    public List<Produto> findByCategoria(Categoria categoria) {
-        return repository.list("categoria", categoria);
+    public List<ProdutoResponseDTO> findByCategoria(String categoriaNome) {
+        Categoria categoria = categoriaRepository.findByNome(categoriaNome);
+        if (categoria == null)
+            throw new NotFoundException("Categoria não encontrada");
+
+        return repository.findByCategoria(categoria)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    // ✅ Método correto para converter Produto em ProdutoResponseDTO
+    private ProdutoResponseDTO toResponseDTO(Produto produto) {
+        return new ProdutoResponseDTO(
+                produto.getId(),
+                produto.getNome(),
+                produto.getDescricao(),
+                produto.getPreco(),
+                produto.getEstoque(),
+                produto.getCategoria().getId()
+        );
     }
 }
