@@ -1,0 +1,72 @@
+package br.unitins.topicos1.service;
+
+import br.unitins.topicos1.dto.UsuarioRequestDTO;
+import br.unitins.topicos1.dto.UsuarioResponseDTO;
+import br.unitins.topicos1.model.Usuario;
+import br.unitins.topicos1.repository.UsuarioRepository;
+import io.smallrye.jwt.build.Jwt;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotFoundException;
+import org.mindrot.jbcrypt.BCrypt;
+
+
+import java.util.HashSet;
+import java.util.Set;
+
+@ApplicationScoped
+public class UsuarioService {
+    @Inject
+    UsuarioRepository usuarioRepository;
+
+    @Transactional
+    public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
+        Usuario usuario = new Usuario();
+
+        usuario.setNome(dto.nome());
+        usuario.setEmail(dto.email());
+        usuario.setSenha(hashSenha(dto.senha()));
+
+        usuarioRepository.persist(usuario);
+        return toResponseDTO(usuario);
+    }
+
+    public UsuarioResponseDTO findByEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email);
+        if (usuario == null) {
+            throw new NotFoundException("Usuário não encontrado");
+        }
+        return toResponseDTO(usuario);
+    }
+
+    public String autenticar(String email, String senha) {
+        Usuario usuario = usuarioRepository.findByEmail(email);
+        if (usuario == null || !verificarSenha(senha, usuario.getSenha())) {
+            throw new NotFoundException("Credenciais inválidas");
+        }
+        return gerarToken(usuario);
+    }
+
+    private String gerarToken(Usuario usuario) {
+        Set<String> roles = new HashSet<>();
+        roles.add("USER");
+
+        return Jwt.issuer("topicos1")
+                .upn(usuario.getEmail())
+                .groups(roles)
+                .sign();
+    }
+
+    private String hashSenha(String senha) {
+        return BCrypt.hashpw(senha, BCrypt.gensalt());
+    }
+
+    private boolean verificarSenha(String senha, String hash) {
+        return BCrypt.checkpw(senha, hash);
+    }
+
+    private UsuarioResponseDTO toResponseDTO(Usuario usuario) {
+        return new UsuarioResponseDTO(usuario.getId(), usuario.getNome(), usuario.getEmail());
+    }
+}
