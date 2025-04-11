@@ -30,14 +30,18 @@ public class ProdutoService {
 
     @Transactional
     public ProdutoResponseDTO create(ProdutoRequestDTO dto) {
+        Categoria categoria = categoriaRepository.findById(dto.categoriaId());
+        if (categoria == null) {
+            throw new NotFoundException("Categoria não encontrada!");
+        }
+        if (dto.estoque() < 0 || dto.preco() <= 0) {
+            throw new IllegalArgumentException("Estoque ou preço inválido!");
+        }
         Produto produto = new Produto();
         produto.setNome(dto.nome());
         produto.setDescricao(dto.descricao());
         produto.setPreco(dto.preco());
         produto.setEstoque(dto.estoque());
-
-        Categoria categoria = categoriaRepository.findById(dto.categoriaId());
-        produto.setCategoria(categoria);
 
         repository.persist(produto);
         return toResponseDTO(produto);
@@ -46,7 +50,7 @@ public class ProdutoService {
     @Transactional
     public ProdutoResponseDTO update(Long id, ProdutoRequestDTO dto) {
         Produto produto = repository.findById(id);
-        if (produto == null) {  // ✅ Corrigido o erro
+        if (produto == null) {
             throw new NotFoundException("Produto não encontrado");
         }
 
@@ -85,13 +89,25 @@ public class ProdutoService {
 
     // Metodo correto para converter Produto em ProdutoResponseDTO
     private ProdutoResponseDTO toResponseDTO(Produto produto) {
+        if (produto.getCategoria() == null) {
+            return new ProdutoResponseDTO(
+                    produto.getId(),
+                    produto.getNome(),
+                    produto.getDescricao(),
+                    produto.getPreco(),
+                    produto.getEstoque(),
+                    null, // categoriaId nulo
+                    null // categoriaNome nulo
+            );
+        }
         return new ProdutoResponseDTO(
                 produto.getId(),
                 produto.getNome(),
                 produto.getDescricao(),
                 produto.getPreco(),
                 produto.getEstoque(),
-                produto.getCategoria().getId()
+                produto.getCategoria().getId(),
+                produto.getCategoria().getNome()
         );
     }
 }

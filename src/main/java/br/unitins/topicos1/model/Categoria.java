@@ -1,5 +1,6 @@
 package br.unitins.topicos1.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -10,9 +11,16 @@ public class Categoria {
     @Id
     @GeneratedValue
     private Long id;
+
+    @Column(nullable = false)
     private String nome;
 
     public Categoria() {
+    }
+
+    public Categoria(Long id, String nome) {
+        this.id = id;
+        this.nome = nome;
     }
 
     public Categoria(String nome) {
@@ -28,7 +36,7 @@ public class Categoria {
     }
 
     public String getNome() {
-        return nome;
+        return this.nome;
     }
 
     public void setNome(String nome) {

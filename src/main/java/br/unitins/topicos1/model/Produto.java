@@ -1,16 +1,23 @@
 package br.unitins.topicos1.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Produto extends PanacheEntity {
 
-    public String nome;
-    public String descricao;
-    public double preco;
-    public int estoque;
+    private String nome;
+
+    @Column(nullable = false)
+    private String descricao;
+
+    @Column(nullable = false)
+    private double preco;
+
+    @Column(nullable = false)
+    private int estoque;
 
     @ManyToOne
     public Categoria categoria;
@@ -32,6 +39,7 @@ public class Produto extends PanacheEntity {
     }
 
     public void setNome(String nome) {
+
         this.nome = nome;
     }
 
@@ -67,5 +75,6 @@ public class Produto extends PanacheEntity {
         this.categoria = categoria;
     }
 
-    public long getId() {return id;}
+    public Long getId() {
+        return id;}
 }
