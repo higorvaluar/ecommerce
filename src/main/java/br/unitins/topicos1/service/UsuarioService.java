@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
+import java.util.Arrays;
 import org.mindrot.jbcrypt.BCrypt;
 
 
@@ -41,11 +42,31 @@ public class UsuarioService {
     }
 
     public String autenticar(String email, String senha) {
-        Usuario usuario = usuarioRepository.findByEmail(email);
-        if (usuario == null || !verificarSenha(senha, usuario.getSenha())) {
-            throw new NotFoundException("Credenciais inválidas");
+        try {
+            Usuario usuario = usuarioRepository.findByEmail(email);
+            if (usuario == null) {
+                throw new NotFoundException("Usuário não encontrado");
+            }
+
+            // Debug avançado
+            System.out.println("=== DEBUG DETALHADO ===");
+            System.out.println("Senha recebida: '" + senha + "'");
+            System.out.println("Hash armazenado: '" + usuario.getSenha() + "'");
+            System.out.println("Tamanho do hash: " + usuario.getSenha().length());
+
+            // Verificação robusta
+            boolean senhaValida = BCrypt.checkpw(senha.trim(), usuario.getSenha().trim());
+            System.out.println("Resultado BCrypt.checkpw: " + senhaValida);
+
+            if (!senhaValida) {
+                throw new NotFoundException("Credenciais inválidas");
+            }
+
+            return gerarToken(usuario);
+        } catch (Exception e) {
+            System.err.println("ERRO NA AUTENTICAÇÃO: " + e.getMessage());
+            throw e;
         }
-        return gerarToken(usuario);
     }
 
     private String gerarToken(Usuario usuario) {
