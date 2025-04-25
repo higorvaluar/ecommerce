@@ -4,29 +4,24 @@ import br.unitins.topicos1.dto.ProdutoRequestDTO;
 import br.unitins.topicos1.dto.ProdutoResponseDTO;
 import br.unitins.topicos1.model.Produto;
 import br.unitins.topicos1.model.Categoria;
-import br.unitins.topicos1.repository.CategoriaRepository;
 import br.unitins.topicos1.repository.ProdutoRepository;
+import br.unitins.topicos1.repository.CategoriaRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ProdutoService {
+
     @Inject
     ProdutoRepository repository;
 
     @Inject
     CategoriaRepository categoriaRepository;
-
-    public ProdutoResponseDTO findById(long id) {
-        Produto produto = repository.findById(id);
-        if (produto == null) {
-            throw new NotFoundException("Produto não encontrado");
-        }
-        return toResponseDTO(produto);
-    }
 
     @Transactional
     public ProdutoResponseDTO create(ProdutoRequestDTO dto) {
@@ -34,80 +29,76 @@ public class ProdutoService {
         if (categoria == null) {
             throw new NotFoundException("Categoria não encontrada!");
         }
-        if (dto.estoque() < 0 || dto.preco() <= 0) {
-            throw new IllegalArgumentException("Estoque ou preço inválido!");
-        }
+
         Produto produto = new Produto();
-        produto.setNome(dto.nome());
-        produto.setDescricao(dto.descricao());
-        produto.setPreco(dto.preco());
-        produto.setEstoque(dto.estoque());
+        produto.nome = dto.nome();
+        produto.descricao = dto.descricao();
+        produto.preco = dto.preco();
+        produto.estoque = dto.estoque();
+        produto.categoria = categoria;
 
         repository.persist(produto);
-        return toResponseDTO(produto);
+        return new ProdutoResponseDTO(produto);
+    }
+
+    public List<ProdutoResponseDTO> getAll() {
+        return repository.listAll()
+                .stream()
+                .map(ProdutoResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    public ProdutoResponseDTO findById(Long id) {
+        Produto produto = repository.findById(id);
+        if (produto == null) {
+            throw new NotFoundException("Produto não encontrado!");
+        }
+        return new ProdutoResponseDTO(produto);
     }
 
     @Transactional
     public ProdutoResponseDTO update(Long id, ProdutoRequestDTO dto) {
         Produto produto = repository.findById(id);
         if (produto == null) {
-            throw new NotFoundException("Produto não encontrado");
+            throw new NotFoundException("Produto não encontrado!");
         }
 
-        produto.setNome(dto.nome());
-        produto.setDescricao(dto.descricao());
-        produto.setPreco(dto.preco());
-        produto.setEstoque(dto.estoque());
-
         Categoria categoria = categoriaRepository.findById(dto.categoriaId());
-        produto.setCategoria(categoria);
+        if (categoria == null) {
+            throw new NotFoundException("Categoria não encontrada!");
+        }
 
-        return toResponseDTO(produto);
-    }
+        produto.nome = dto.nome();
+        produto.descricao = dto.descricao();
+        produto.preco = dto.preco();
+        produto.estoque = dto.estoque();
+        produto.categoria = categoria;
 
-    public List<ProdutoResponseDTO> findAll() {
-        return repository.findAll().stream()
-                .map(this::toResponseDTO)
-                .toList();
+        return new ProdutoResponseDTO(produto);
     }
 
     @Transactional
     public void delete(Long id) {
-        repository.deleteById(id);
-    }
-
-    public List<ProdutoResponseDTO> findByCategoria(String categoriaNome) {
-        Categoria categoria = categoriaRepository.findByNome(categoriaNome);
-        if (categoria == null)
-            throw new NotFoundException("Categoria não encontrada");
-
-        return repository.findByCategoria(categoria)
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
-    }
-
-    // Metodo correto para converter Produto em ProdutoResponseDTO
-    private ProdutoResponseDTO toResponseDTO(Produto produto) {
-        if (produto.getCategoria() == null) {
-            return new ProdutoResponseDTO(
-                    produto.getId(),
-                    produto.getNome(),
-                    produto.getDescricao(),
-                    produto.getPreco(),
-                    produto.getEstoque(),
-                    null, // categoriaId nulo
-                    null // categoriaNome nulo
-            );
+        if (!repository.deleteById(id)) {
+            throw new NotFoundException("Produto não encontrado!");
         }
-        return new ProdutoResponseDTO(
-                produto.getId(),
-                produto.getNome(),
-                produto.getDescricao(),
-                produto.getPreco(),
-                produto.getEstoque(),
-                produto.getCategoria().getId(),
-                produto.getCategoria().getNome()
-        );
+    }
+
+    public List<ProdutoResponseDTO> findByNome(String nome) {
+        return repository.find("nome like ?1", "%" + nome + "%")
+                .stream()
+                .map(ProdutoResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProdutoResponseDTO> findByCategoria(Long categoriaId) {
+        Categoria categoria = categoriaRepository.findById(categoriaId);
+        if (categoria == null) {
+            throw new NotFoundException("Categoria não encontrada!");
+        }
+        return repository.find("categoria.id = ?1", categoria.id)
+                .stream()
+                .map(ProdutoResponseDTO::new)
+                .collect(Collectors.toList());
     }
 }

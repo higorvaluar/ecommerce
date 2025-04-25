@@ -3,6 +3,7 @@ package br.unitins.topicos1.dto;
 import br.unitins.topicos1.model.Kit;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public record KitResponseDTO(
     Long id,
@@ -17,9 +18,10 @@ public record KitResponseDTO(
                 kit.getNome(),
                 kit.getDescricao(),
                 kit.getPreco(),
-                kit.getProdutos().stream()
-                        .map(ProdutoResponseDTO::new)
-                        .toList()
+                kit.getProdutos() != null
+                    ? kit.getProdutos().stream().map(ProdutoResponseDTO::new)
+                        .collect(Collectors.toList())
+                        : List.of()
         );
     }
 }

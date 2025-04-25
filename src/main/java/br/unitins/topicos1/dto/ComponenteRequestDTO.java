@@ -1,13 +1,11 @@
 package br.unitins.topicos1.dto;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Positive;
 
-import java.util.List;
-
-public record KitRequestDTO(
+public record ComponenteRequestDTO (
         @NotNull(message = "O nome não pode ser nulo")
         @Size(min = 3, max = 100, message = "O nome deve ter entre 3 e 100 caracteres")
         String nome,
@@ -19,6 +17,7 @@ public record KitRequestDTO(
         @Positive(message = "O preço deve ser maior que zero")
         Double preco,
 
-        @NotEmpty(message = "A lista de produtos não pode ser vazia")
-        List<Long> produtosIds
+        @NotNull(message = "O estoque não pode ser nulo")
+        @PositiveOrZero(message = "O estoque não pode ser negativo")
+        Integer estoque
 ) {}

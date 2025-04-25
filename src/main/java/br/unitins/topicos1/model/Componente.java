@@ -2,10 +2,9 @@ package br.unitins.topicos1.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
-import java.util.List;
 
 @Entity
-public class Kit extends PanacheEntity {
+public class Componente extends PanacheEntity {
     @Column(nullable = false)
     private String nome;
 
@@ -14,15 +13,10 @@ public class Kit extends PanacheEntity {
     @Column(nullable = false)
     private Double preco;
 
-    @ManyToMany
-    @JoinTable(
-            name = "kit_produto",
-            joinColumns = @JoinColumn(name = "kit_id"),
-            inverseJoinColumns = @JoinColumn(name = "produto_id")
-    )
-    private List<Produto> produtos;
+    @Column(nullable = false)
+    private Integer estoque;
 
-
+    // Getters e Setters
     public String getNome() {
         return nome;
     }
@@ -47,11 +41,11 @@ public class Kit extends PanacheEntity {
         this.preco = preco;
     }
 
-    public List<Produto> getProdutos() {
-        return produtos;
+    public Integer getEstoque() {
+        return estoque;
     }
 
-    public void setProdutos(List<Produto> produtos) {
-        this.produtos = produtos;
+    public void setEstoque(Integer estoque) {
+        this.estoque = estoque;
     }
 }

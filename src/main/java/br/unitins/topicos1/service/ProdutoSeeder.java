@@ -2,43 +2,50 @@ package br.unitins.topicos1.service;
 
 import br.unitins.topicos1.model.Categoria;
 import br.unitins.topicos1.model.Produto;
+import br.unitins.topicos1.repository.CategoriaRepository;
+import br.unitins.topicos1.repository.ProdutoRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class ProdutoSeeder {
 
     @Inject
-    EntityManager em;
+    CategoriaRepository categoriaRepository;
+
+    @Inject
+    ProdutoRepository produtoRepository;
 
     @Transactional
     public void seed() {
-        if (em.createQuery("SELECT COUNT(p) FROM Produto p", Long.class).getSingleResult() == 0) {
-            // Criando as categorias
-            Categoria categoriaVpn = new Categoria("VPN");
-            Categoria categoriaPihole = new Categoria("PI_HOLE");
-            Categoria categoriaNextcloud = new Categoria("NEXTCLOUD");
-            Categoria categoriaFirewall = new Categoria("FIREWALL");
+        if (categoriaRepository.count() == 0) {
+            Categoria vpn = new Categoria();
+            vpn.nome = "VPN";
+            Categoria firewall = new Categoria();
+            firewall.nome = "Firewall";
+            Categoria servidores = new Categoria();
+            servidores.nome = "Servidores";
+            Categoria armazenamento = new Categoria();
+            armazenamento.nome = "Armazenamento";
 
-            // Persistindo categorias com o EntityManager
-            em.persist(categoriaVpn);
-            em.persist(categoriaPihole);
-            em.persist(categoriaNextcloud);
-            em.persist(categoriaFirewall);
+            categoriaRepository.persist(vpn, firewall, servidores, armazenamento);
 
-            // Criando os produtos
-            Produto produto1 = new Produto("Roteador VPN", "Roteador especializado em VPN para segurança online.", 321.22, 20, categoriaVpn);
-            Produto produto2 = new Produto("DNS Caseiro", "DNS Caseiro que você mesmo pode fazer", 111.21, 15, categoriaPihole);
-            Produto produto3 = new Produto("Servidor de Arquivos Privado", "Servidor dedicado para armazenamento de arquivos privados.", 1223.11, 10, categoriaNextcloud);
-            Produto produto4 = new Produto("Firewall caseiro", "Você configura e tem privacidade!", 442.11, 30, categoriaFirewall);
+            Produto roteador = new Produto();
+            roteador.nome = "Roteador VPN";
+            roteador.descricao = "Roteador especializado";
+            roteador.preco = 299.90;
+            roteador.estoque = 10;
+            roteador.categoria = vpn;
 
-            // Persistindo os produtos
-            em.persist(produto1);
-            em.persist(produto2);
-            em.persist(produto3);
-            em.persist(produto4);
+            Produto firewallCaseiro = new Produto();
+            firewallCaseiro.nome = "Firewall Caseiro";
+            firewallCaseiro.descricao = "Firewall personalizado";
+            firewallCaseiro.preco = 199.90;
+            firewallCaseiro.estoque = 5;
+            firewallCaseiro.categoria = firewall;
+
+            produtoRepository.persist(roteador, firewallCaseiro);
         }
     }
 }
