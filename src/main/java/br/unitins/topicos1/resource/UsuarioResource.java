@@ -3,6 +3,7 @@ package br.unitins.topicos1.resource;
 import br.unitins.topicos1.dto.UsuarioRequestDTO;
 import br.unitins.topicos1.dto.UsuarioResponseDTO;
 import br.unitins.topicos1.service.UsuarioService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -19,6 +20,7 @@ public class UsuarioResource {
     UsuarioService usuarioService;
 
     @POST
+    @RolesAllowed("ADMIN") // Restringe criação de usuários e administradores
     public Response create(UsuarioRequestDTO dto) {
         UsuarioResponseDTO usuario = usuarioService.create(dto);
         return Response.status(Response.Status.CREATED).entity(usuario).build();

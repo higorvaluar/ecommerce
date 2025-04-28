@@ -26,6 +26,9 @@ public class ItemPedido extends PanacheEntity {
 
     public void setPedido(Pedido pedido) {
         this.pedido = pedido;
+        if (pedido != null && !pedido.getItens().contains(this)) {
+            pedido.getItens().add(this); // Sincronia bidirecional
+        }
     }
 
     public Kit getKit() {

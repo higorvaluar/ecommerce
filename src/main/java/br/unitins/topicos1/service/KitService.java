@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class KitService {
@@ -26,13 +27,25 @@ public class KitService {
         Kit kit = new Kit();
         kit.setNome(dto.nome());
         kit.setDescricao(dto.descricao());
-        kit.setPreco(dto.preco());
 
-        List<Produto> produtos = produtoRepository.list("id in ?1", dto.produtosIds());
+        List<Produto> produtos = dto.produtosIds()
+                .stream().map(id -> {
+                    Produto produto = produtoRepository.findById(id);
+                    if (produto == null) {
+                        throw new NotFoundException("Produto com ID " + id + " não encontrado");
+                    }
+                    return produto;
+                }).collect(Collectors.toList());
         if (produtos.isEmpty()) {
             throw new NotFoundException("Nenhum produto encontrado com os IDs fornecidos.");
         }
         kit.setProdutos(produtos);
+
+        // Calcula o preço do kit com base nos produtos
+        double precoCalculado = produtos.stream()
+                        .mapToDouble(produto -> produto.preco)
+                                .sum();
+        kit.setPreco(precoCalculado);
 
         repository.persist(kit);
         return new KitResponseDTO(kit);
@@ -61,10 +74,22 @@ public class KitService {
 
         kit.setNome(dto.nome());
         kit.setDescricao(dto.descricao());
-        kit.setPreco(dto.preco());
 
-        List<Produto> produtos = produtoRepository.list("id in ?1", dto.produtosIds());
+        List<Produto> produtos = dto.produtosIds().stream()
+                        .map(prodId -> {
+                            Produto produto = produtoRepository.findById(prodId);
+                            if (produto == null) {
+                                throw new NotFoundException("Produto com ID " + prodId + " não encontrado");
+                            }
+                            return produto;
+                        }).collect(Collectors.toList());
+
         kit.setProdutos(produtos);
+
+        // Recalcula o preço do kit
+        double precoCalculado = produtos.stream()
+                .mapToDouble(produto -> produto.preco).sum();
+        kit.setPreco(precoCalculado);
 
         return new KitResponseDTO(kit);
     }

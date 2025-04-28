@@ -6,6 +6,7 @@ import br.unitins.topicos1.model.Produto;
 import br.unitins.topicos1.model.Categoria;
 import br.unitins.topicos1.repository.ProdutoRepository;
 import br.unitins.topicos1.repository.CategoriaRepository;
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -48,6 +49,7 @@ public class ProdutoService {
                 .collect(Collectors.toList());
     }
 
+    @CacheResult(cacheName = "produto-cache") // Adicionando cache
     public ProdutoResponseDTO findById(Long id) {
         Produto produto = repository.findById(id);
         if (produto == null) {

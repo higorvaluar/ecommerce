@@ -14,7 +14,7 @@ public record PedidoResponseDTO(
         LocalDateTime data,
         Double total,
         String status,
-        List<ItemPedidoResponseDTO> itens
+        List<ItemPedidoDTO> itens
 ) {
     public PedidoResponseDTO(Pedido pedido) {
         this(
@@ -23,28 +23,21 @@ public record PedidoResponseDTO(
                 pedido.getUsuario().getNome(),
                 pedido.getData(),
                 pedido.getTotal(),
-                pedido.getStatus(),
-                pedido.getItens() != null
-                        ? pedido.getItens().stream().map(ItemPedidoResponseDTO::new).collect(Collectors.toList())
-                        : List.of()
+                pedido.getStatus().toString(),
+                pedido.getItens().stream()
+                        .map(item -> new ItemPedidoDTO(
+                                item.getKit().id,
+                                item.getKit().getNome(),
+                                item.getQuantidade(),
+                                item.getPrecoUnitario()))
+                        .collect(Collectors.toList())
         );
     }
 
-    public record ItemPedidoResponseDTO(
-            Long id,
+    public record ItemPedidoDTO(
             Long kitId,
             String kitNome,
             Integer quantidade,
             Double precoUnitario
-    ) {
-        public ItemPedidoResponseDTO(ItemPedido item) {
-            this(
-                    item.id,
-                    item.getKit().id,
-                    item.getKit().getNome(),
-                    item.getQuantidade(),
-                    item.getPrecoUnitario()
-            );
-        }
-    }
+    ) {}
 }

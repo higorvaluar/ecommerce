@@ -2,6 +2,8 @@ package br.unitins.topicos1.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
+import jdk.jshell.Snippet;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,7 +20,8 @@ public class Pedido extends PanacheEntity {
     private Double total;
 
     @Column(nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private StatusPedido status;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemPedido> itens;
@@ -48,11 +51,11 @@ public class Pedido extends PanacheEntity {
         this.total = total;
     }
 
-    public String getStatus() {
+    public StatusPedido getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusPedido status) {
         this.status = status;
     }
 

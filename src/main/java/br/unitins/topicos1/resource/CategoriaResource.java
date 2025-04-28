@@ -4,10 +4,13 @@ import br.unitins.topicos1.dto.CategoriaRequestDTO;
 import br.unitins.topicos1.dto.CategoriaResponseDTO;
 import br.unitins.topicos1.service.CategoriaService;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
+
+import static jakarta.ws.rs.core.Response.ok;
 
 @Path("/categorias")
 @Produces(MediaType.APPLICATION_JSON)
@@ -25,8 +28,11 @@ public class CategoriaResource {
     }
 
     @GET
-    public List<CategoriaResponseDTO> getAll() {
-        return service.getAll();
+    public Response getAll(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("pageSize") @DefaultValue("10") int pageSize
+    ) {
+        return Response.ok(service.getAll(page, pageSize)).build();
     }
 
     @GET

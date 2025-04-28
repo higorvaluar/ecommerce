@@ -1,7 +1,6 @@
 package br.unitins.topicos1.service;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,7 +15,7 @@ public class TokenService {
         Set<String> roles = new HashSet<>();
         roles.add(usuario.getPerfil().toString());
 
-        return Jwt.issuer("http://localhost/")
+        return Jwt.issuer("unitins-jwt")
                 .subject(usuario.getEmail())
                 .groups(roles)
                 .expiresIn(Duration.ofHours(1))

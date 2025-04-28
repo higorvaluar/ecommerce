@@ -20,14 +20,22 @@ public class CategoriaService {
 
     @Transactional
     public CategoriaResponseDTO create(CategoriaRequestDTO dto) {
-        Categoria categoria = new Categoria();
-        categoria.nome = dto.nome();
-        repository.persist(categoria);
-        return new CategoriaResponseDTO(categoria);
+        try {
+            Categoria categoria = new Categoria();
+            categoria.nome = dto.nome();
+            repository.persist(categoria);
+            System.out.println("Categoria criada com sucesso: " + categoria.nome);
+            return new CategoriaResponseDTO(categoria);
+        } catch (Exception e) {
+            System.err.println("Erro ao criar categoria: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao criar categoria", e);
+        }
     }
 
-    public List<CategoriaResponseDTO> getAll() {
-        return repository.listAll()
+    public List<CategoriaResponseDTO> getAll(int page, int pageSize) {
+        return repository.findAll()
+                .page(page, pageSize)
                 .stream()
                 .map(CategoriaResponseDTO::new)
                 .collect(Collectors.toList());
@@ -53,8 +61,15 @@ public class CategoriaService {
 
     @Transactional
     public void delete(Long id) {
-        if (!repository.deleteById(id)) {
-            throw new NotFoundException("Categoria não encontrada!");
+        try {
+            if (!repository.deleteById(id)) {
+                throw new NotFoundException("Categoria não encontrada!");
+            }
+            System.out.println("Categoria deletada com sucesso: ID " + id);
+        } catch (Exception e) {
+            System.err.println("Erro ao deletar categoria: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao deletar categoria", e);
         }
     }
 

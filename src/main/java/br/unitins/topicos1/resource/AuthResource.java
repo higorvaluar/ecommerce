@@ -1,6 +1,7 @@
 package br.unitins.topicos1.resource;
 
 import br.unitins.topicos1.service.AuthService;
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -19,6 +20,7 @@ public class AuthResource {
 
     @POST
     @Path("/login")
+    @PermitAll // Permite acesso público ao login
     public Response login(LoginDTO dto) {
         String token = service.login(dto.email(), dto.senha());
         return Response.ok().entity(token).build();

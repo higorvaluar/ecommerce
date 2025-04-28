@@ -1,5 +1,5 @@
 -- Inserção para Usuario
-INSERT INTO usuario (email, nome, perfil, senha) VALUES ('admin@email.com', 'Higor', 'ADMIN', '$2a$10$X5wFBtLrL/kHcmrOGGTrGufsBX8Cg0nQpJXrsl6mI7Is1VdD2qY1K');
+INSERT INTO usuario (email, nome, perfil, senha) VALUES ('admin@email.com', 'Higor', 'ADMIN', '$2a$10$JgjGB/oJSovRO7ZHxsq2quOBuS9PSRj7V6P3OpBXmahPJ34qcvcoS');
 
 -- Inserções para Categoria
 INSERT INTO Categoria (nome) VALUES ('VPN');
