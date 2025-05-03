@@ -2,13 +2,11 @@ package br.unitins.topicos1.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
-import jdk.jshell.Snippet;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-public class Pedido extends PanacheEntity {
+public class Pedido extends DefaultEntity {
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
@@ -26,7 +24,6 @@ public class Pedido extends PanacheEntity {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemPedido> itens;
 
-    // Getters e Setters
     public Usuario getUsuario() {
         return usuario;
     }

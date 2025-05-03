@@ -4,7 +4,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 
 @Entity
-public class ItemPedido extends PanacheEntity {
+public class ItemPedido extends DefaultEntity {
     @ManyToOne
     @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
@@ -19,7 +19,6 @@ public class ItemPedido extends PanacheEntity {
     @Column(nullable = false)
     private Double precoUnitario;
 
-    // Getters e Setters
     public Pedido getPedido() {
         return pedido;
     }
@@ -27,7 +26,7 @@ public class ItemPedido extends PanacheEntity {
     public void setPedido(Pedido pedido) {
         this.pedido = pedido;
         if (pedido != null && !pedido.getItens().contains(this)) {
-            pedido.getItens().add(this); // Sincronia bidirecional
+            pedido.getItens().add(this);
         }
     }
 

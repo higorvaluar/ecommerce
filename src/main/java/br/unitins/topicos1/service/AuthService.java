@@ -1,46 +1,43 @@
 package br.unitins.topicos1.service;
 
-import br.unitins.topicos1.model.Perfil;
-import br.unitins.topicos1.model.Usuario;
-import br.unitins.topicos1.repository.UsuarioRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import br.unitins.topicos1.model.Usuario;
+import br.unitins.topicos1.repository.UsuarioRepository;
+import br.unitins.topicos1.util.TestLogCollector;
 import org.mindrot.jbcrypt.BCrypt;
 
 @ApplicationScoped
 public class AuthService {
-
     @Inject
-    UsuarioRepository repository;
+    UsuarioRepository usuarioRepository;
 
     @Inject
     TokenService tokenService;
 
     public String login(String email, String senha) {
-        Usuario usuario = repository.findByEmail(email);
+        TestLogCollector.addLog("Tentando login para email: " + email);
+        Usuario usuario = (Usuario) usuarioRepository.findByEmail(email);
         if (usuario == null) {
-            System.out.println("Usuário não encontrado para o email: " + email);
+            TestLogCollector.addLog("Usuário não encontrado para email: " + email);
             throw new WebApplicationException("Email ou senha inválidos", Response.Status.UNAUTHORIZED);
         }
-
-        System.out.println("Senha fornecida: " + senha + "'");
-        System.out.println("Senha armazenada: " + usuario.getSenha() + "'");
-        boolean senhaValida = BCrypt.checkpw(senha.trim(), usuario.getSenha());
-        System.out.println("Resultado da verificação de senha: " + senhaValida);
-
-        if (!senhaValida) {
-            throw new WebApplicationException("Email ou senha inválidos", Response.Status.UNAUTHORIZED);
+        TestLogCollector.addLog("Usuário encontrado: " + usuario.getEmail());
+        try {
+            boolean senhaValida = BCrypt.checkpw(senha.trim(), usuario.getSenha().trim());
+            if (!senhaValida) {
+                TestLogCollector.addLog("Senha inválida para email: " + email);
+                throw new WebApplicationException("Email ou senha inválidos", Response.Status.UNAUTHORIZED);
+            }
+            TestLogCollector.addLog("Senha válida, gerando token...");
+            String token = tokenService.generateJwt(usuario);
+            TestLogCollector.addLog("Token gerado: " + token);
+            return token;
+        } catch (Exception e) {
+            TestLogCollector.addLog("Erro ao processar login: " + e.getMessage());
+            throw new WebApplicationException("Erro interno no login", Response.Status.INTERNAL_SERVER_ERROR);
         }
-
-        // Removido temporariamente para testes
-        // if (!usuario.getPerfil().equals(Perfil.ADMIN)) {
-        //     throw new WebApplicationException("Perfil não autorizado", Response.Status.FORBIDDEN);
-        // }
-
-        String token = tokenService.generateJwt(usuario);
-        System.out.println("Token gerado: " + token);
-        return token;
     }
 }

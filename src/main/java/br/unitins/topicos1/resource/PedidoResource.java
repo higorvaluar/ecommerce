@@ -2,8 +2,7 @@ package br.unitins.topicos1.resource;
 
 import br.unitins.topicos1.dto.PedidoRequestDTO;
 import br.unitins.topicos1.dto.PedidoResponseDTO;
-import br.unitins.topicos1.service.PedidoService;
-import jakarta.annotation.security.RolesAllowed;
+import br.unitins.topicos1.service.PedidoServiceImpl;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -12,53 +11,55 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
-@Path("/pedidos")
+@Path("/api/pedidos")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class PedidoResource {
 
     @Inject
-    PedidoService service;
+    PedidoServiceImpl pedidoService;
 
     @GET
-    @RolesAllowed("ADMIN")
-    public List<PedidoResponseDTO> getAll() {
-        return service.getAll();
-    }
-
-    @GET
-    @Path("/{id}")
-    @RolesAllowed({"ADMIN", "USER"})
-    public PedidoResponseDTO findById(@PathParam("id") Long id) {
-        return service.findById(id);
+    public List<PedidoResponseDTO> getAll(@QueryParam("page") @DefaultValue("0") int page,
+                                          @QueryParam("pageSize") @DefaultValue("10") int pageSize) {
+        return pedidoService.findAll(page, pageSize);
     }
 
     @POST
-    @RolesAllowed("USER")
     public Response create(@Valid PedidoRequestDTO dto) {
-        PedidoResponseDTO pedido = service.create(dto);
-        return Response.status(Response.Status.CREATED).entity(pedido).build();
-    }
-
-    @PUT
-    @Path("/{id}/status")
-    @RolesAllowed("ADMIN")
-    public PedidoResponseDTO updateStatus(@PathParam("id") Long id, @QueryParam("status") String status) {
-        return service.updateStatus(id, status);
-    }
-
-    @DELETE
-    @Path("/{id}")
-    @RolesAllowed("ADMIN")
-    public Response delete(@PathParam("id") Long id) {
-        service.delete(id);
-        return Response.noContent().build();
+        return Response.status(Response.Status.CREATED).entity(pedidoService.create(dto)).build();
     }
 
     @GET
     @Path("/usuario/{usuarioId}")
-    @RolesAllowed({"ADMIN", "USER"})
     public List<PedidoResponseDTO> findByUsuario(@PathParam("usuarioId") Long usuarioId) {
-        return service.findByUsuario(usuarioId);
+        return pedidoService.findByUsuario(usuarioId);
+    }
+
+    @GET
+    @Path("/{id}")
+    public Response findById(@PathParam("id") Long id) {
+        return Response.ok(pedidoService.findById(id)).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    public Response update(@PathParam("id") Long id, @Valid PedidoRequestDTO dto) {
+        pedidoService.update(id, dto);
+        Response response = Response.status(Response.Status.NO_CONTENT).build();
+        return response;
+    }
+
+    @PUT
+    @Path("/{id}/status")
+    public Response updateStatus(@PathParam("id") Long id, @QueryParam("status") String status) {
+        return Response.ok(pedidoService.updateStatus(id, status)).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public Response delete(@PathParam("id") Long id) {
+        pedidoService.delete(id);
+        return Response.noContent().build();
     }
 }

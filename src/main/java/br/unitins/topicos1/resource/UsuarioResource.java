@@ -2,42 +2,52 @@ package br.unitins.topicos1.resource;
 
 import br.unitins.topicos1.dto.UsuarioRequestDTO;
 import br.unitins.topicos1.dto.UsuarioResponseDTO;
-import br.unitins.topicos1.service.UsuarioService;
-import jakarta.annotation.security.RolesAllowed;
-import jakarta.enterprise.context.ApplicationScoped;
+import br.unitins.topicos1.service.UsuarioServiceImpl;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@ApplicationScoped
-@Path("api/usuarios")
+import java.util.List;
+
+@Path("/api/usuarios")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UsuarioResource {
 
     @Inject
-    UsuarioService usuarioService;
+    UsuarioServiceImpl usuarioService;
 
-    @POST
-    @RolesAllowed("ADMIN") // Restringe criação de usuários e administradores
-    public Response create(UsuarioRequestDTO dto) {
-        UsuarioResponseDTO usuario = usuarioService.create(dto);
-        return Response.status(Response.Status.CREATED).entity(usuario).build();
+    @GET
+    public List<UsuarioResponseDTO> getAll(@QueryParam("page") @DefaultValue("0") int page,
+                                           @QueryParam("pageSize") @DefaultValue("10") int pageSize) {
+        return usuarioService.findAll(page, pageSize);
     }
 
     @POST
-    @Path("/login")
-    public Response login(LoginDTO dto) {
-        try {
-            String token = usuarioService.autenticar(dto.email(), dto.senha());
-            return Response.ok(token).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
+    public Response create(@Valid UsuarioRequestDTO dto) {
+        return Response.status(Response.Status.CREATED).entity(usuarioService.create(dto)).build();
     }
 
-    public record LoginDTO(String email, String senha) {
+    @GET
+    @Path("/email/{email}")
+    public Response findByEmail(@PathParam("email") String email) {
+        return Response.ok(usuarioService.findByEmail(email)).build();
+    }
 
+    @PUT
+    @Path("/{id}")
+    public Response update(@PathParam("id") Long id, @Valid UsuarioRequestDTO dto) {
+        usuarioService.update(id, dto);
+        Response response = Response.status(Response.Status.NO_CONTENT).build();
+        return response;
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public Response delete(@PathParam("id") Long id) {
+        usuarioService.delete(id);
+        return Response.noContent().build();
     }
 }

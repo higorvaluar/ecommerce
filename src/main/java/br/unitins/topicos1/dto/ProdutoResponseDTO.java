@@ -8,25 +8,16 @@ public record ProdutoResponseDTO(
         String descricao,
         Double preco,
         Integer estoque,
-        CategoriaResponseDTO categoria
+        Long categoriaId
 ) {
-    public ProdutoResponseDTO(Produto produto) {
-        this(
-                produto.id,
-                produto.nome,
-                produto.descricao,
-                produto.preco,
-                produto.estoque,
-                new CategoriaResponseDTO(produto.categoria)
+    public static ProdutoResponseDTO valueOf(Produto produto) {
+        return new ProdutoResponseDTO(
+                produto.getId(),
+                produto.getNome(),
+                produto.getDescricao(),
+                produto.getPreco(),
+                produto.getEstoque(),
+                produto.getCategoria().getId()
         );
-    }
-
-    public record CategoriaResponseDTO(
-            Long id,
-            String nome
-    ) {
-        public CategoriaResponseDTO(br.unitins.topicos1.model.Categoria categoria) {
-            this(categoria.id, categoria.nome);
-        }
     }
 }

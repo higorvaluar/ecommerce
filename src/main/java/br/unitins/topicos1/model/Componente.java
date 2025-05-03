@@ -4,7 +4,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 
 @Entity
-public class Componente extends PanacheEntity {
+public class Componente extends DefaultEntity {
     @Column(nullable = false)
     private String nome;
 
@@ -16,7 +16,6 @@ public class Componente extends PanacheEntity {
     @Column(nullable = false)
     private Integer estoque;
 
-    // Getters e Setters
     public String getNome() {
         return nome;
     }

@@ -1,21 +1,30 @@
--- Inserção para Usuario
-INSERT INTO usuario (email, nome, perfil, senha) VALUES ('admin@email.com', 'Higor', 'ADMIN', '$2a$10$JgjGB/oJSovRO7ZHxsq2quOBuS9PSRj7V6P3OpBXmahPJ34qcvcoS');
+CREATE SEQUENCE IF NOT EXISTS categoria_seq START 1 INCREMENT 1;
+CREATE SEQUENCE IF NOT EXISTS produto_seq START 1 INCREMENT 1;
+CREATE SEQUENCE IF NOT EXISTS kit_seq START 1 INCREMENT 1;
 
--- Inserções para Categoria
-INSERT INTO Categoria (nome) VALUES ('VPN');
-INSERT INTO Categoria (nome) VALUES ('Firewall');
+INSERT INTO usuario (email, nome, perfil, senha) VALUES
+('admin@example.com', 'admin', 'ADMIN', '$2a$12$f1l.AujAGciqQm4Ic2bqDuG9T93/2BmvRjNBZyfaFjGzns2vGvEOK');
 
--- Inserções para Produto
-INSERT INTO Produto (nome, descricao, preco, estoque, categoria_id) VALUES ('Roteador VPN', 'Roteador especializado', 299.90, 10, 1);
-INSERT INTO Produto (nome, descricao, preco, estoque, categoria_id) VALUES ('Firewall Caseiro', 'Firewall personalizado', 199.90, 5, 2);
+-- Inserindo uma categoria
+INSERT INTO Categoria (nome) VALUES ('Eletrônicos');
 
--- Inserções para Componente
-INSERT INTO Componente (nome, descricao, preco, estoque) VALUES ('Raspberry Pi 4', 'Placa para servidores DIY', 250.00, 50);
-INSERT INTO Componente (nome, descricao, preco, estoque) VALUES ('HD Externo 1TB', 'Armazenamento para Nextcloud', 400.00, 30);
+-- Inserindo um produto
+INSERT INTO Produto (nome, descricao, preco, estoque, categoria_id) VALUES ('Arduino Uno', 'Placa microcontroladora', 29.99, 100, 1);
 
--- Inserções para Kit
-INSERT INTO Kit (nome, descricao, preco) VALUES ('Kit Servidor DIY', 'Kit para montar servidor caseiro', 600.00);
+-- Inserindo um kit
+INSERT INTO Kit (nome, descricao, preco) VALUES ('Kit Iniciante', 'Kit para iniciantes em eletrônica', 59.99);
 
--- Inserções para o relacionamento Kit-Produto
+-- Associando produto ao kit
 INSERT INTO kit_produto (kit_id, produto_id) VALUES (1, 1);
-INSERT INTO kit_produto (kit_id, produto_id) VALUES (1, 2);
+
+-- Inserindo um componente
+INSERT INTO Componente (nome, descricao, preco, estoque) VALUES ('Resistor 10k', 'Resistor de 10k ohms', 0.10, 1000);
+
+-- Inserindo um tutorial
+INSERT INTO Tutorial (titulo, conteudo, produto_id) VALUES ('Como usar Arduino', 'Tutorial básico de Arduino...', 1);
+
+-- Inserindo um pedido
+INSERT INTO Pedido (usuario_id, data, total, status) VALUES (1, '2025-05-03 10:00:00', 59.99, 'PENDENTE');
+
+-- Inserindo um item de pedido
+INSERT INTO ItemPedido (pedido_id, kit_id, quantidade, precoUnitario) VALUES (1, 1, 1, 59.99);

@@ -4,8 +4,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 
 @Entity
-public class Tutorial extends PanacheEntity {
-
+public class Tutorial extends DefaultEntity {
     private String titulo;
 
     @Column(columnDefinition = "TEXT")
@@ -13,7 +12,7 @@ public class Tutorial extends PanacheEntity {
 
     @ManyToOne
     @JoinColumn(name = "produto_id", nullable = false)
-    public Produto produto;
+    private Produto produto;
 
     public String getTitulo() {
         return titulo;

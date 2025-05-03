@@ -6,7 +6,11 @@ public record CategoriaResponseDTO(
         Long id,
         String nome
 ) {
-    public CategoriaResponseDTO(Categoria categoria) {
-        this(categoria.id, categoria.nome);
+    public static CategoriaResponseDTO valueOf(Categoria categoria) {
+
+        return new CategoriaResponseDTO(
+                categoria.getId(),
+                categoria.getNome()
+        );
     }
 }

@@ -2,81 +2,21 @@ package br.unitins.topicos1.service;
 
 import br.unitins.topicos1.dto.CategoriaRequestDTO;
 import br.unitins.topicos1.dto.CategoriaResponseDTO;
-import br.unitins.topicos1.model.Categoria;
-import br.unitins.topicos1.repository.CategoriaRepository;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-import jakarta.ws.rs.NotFoundException;
+import jakarta.validation.Valid;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-@ApplicationScoped
-public class CategoriaService {
+public interface CategoriaService {
 
-    @Inject
-    CategoriaRepository repository;
+    public CategoriaResponseDTO create(@Valid CategoriaRequestDTO categoriaDTO);
 
-    @Transactional
-    public CategoriaResponseDTO create(CategoriaRequestDTO dto) {
-        try {
-            Categoria categoria = new Categoria();
-            categoria.nome = dto.nome();
-            repository.persist(categoria);
-            System.out.println("Categoria criada com sucesso: " + categoria.nome);
-            return new CategoriaResponseDTO(categoria);
-        } catch (Exception e) {
-            System.err.println("Erro ao criar categoria: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Erro ao criar categoria", e);
-        }
-    }
+    public void update(Long id, CategoriaRequestDTO categoriaDTO);
 
-    public List<CategoriaResponseDTO> getAll(int page, int pageSize) {
-        return repository.findAll()
-                .page(page, pageSize)
-                .stream()
-                .map(CategoriaResponseDTO::new)
-                .collect(Collectors.toList());
-    }
+    public void delete(Long id);
 
-    public CategoriaResponseDTO findById(Long id) {
-        Categoria categoria = repository.findById(id);
-        if (categoria == null) {
-            throw new NotFoundException("Categoria não encontrada!");
-        }
-        return new CategoriaResponseDTO(categoria);
-    }
+    public CategoriaResponseDTO findById(Long id);
 
-    @Transactional
-    public CategoriaResponseDTO update(Long id, CategoriaRequestDTO dto) {
-        Categoria categoria = repository.findById(id);
-        if (categoria == null) {
-            throw new NotFoundException("Categoria não encontrada!");
-        }
-        categoria.nome = dto.nome();
-        return new CategoriaResponseDTO(categoria);
-    }
+    public List<CategoriaResponseDTO> findAll();
 
-    @Transactional
-    public void delete(Long id) {
-        try {
-            if (!repository.deleteById(id)) {
-                throw new NotFoundException("Categoria não encontrada!");
-            }
-            System.out.println("Categoria deletada com sucesso: ID " + id);
-        } catch (Exception e) {
-            System.err.println("Erro ao deletar categoria: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Erro ao deletar categoria", e);
-        }
-    }
-
-    public List<CategoriaResponseDTO> findByNome(String nome) {
-        return repository.find("nome like ?1", "%" + nome + "%")
-                .stream()
-                .map(CategoriaResponseDTO::new)
-                .collect(Collectors.toList());
-    }
+    public List<CategoriaResponseDTO> findByNome(String nome);
 }

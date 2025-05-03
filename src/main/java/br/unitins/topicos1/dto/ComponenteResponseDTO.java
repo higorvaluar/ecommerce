@@ -9,9 +9,9 @@ public record ComponenteResponseDTO(
         Double preco,
         Integer estoque
 ) {
-    public ComponenteResponseDTO(Componente componente) {
-        this(
-                componente.id,
+    public static ComponenteResponseDTO valueOf(Componente componente) {
+        return new ComponenteResponseDTO(
+                componente.getId(),
                 componente.getNome(),
                 componente.getDescricao(),
                 componente.getPreco(),
